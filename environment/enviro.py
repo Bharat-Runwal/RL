@@ -80,7 +80,7 @@ if start_q_table is None:
         for y1 in range(-SIZE+1,SIZE):
             for x2 in range(-SIZE+1,SIZE):
                 for y2 in range(-SIZE+1,SIZE):
-                    q_table[((x1,y1),(x2,y2))] = [np.random.unifrom(-5,0) for i in range(4)]
+                    q_table[((x1,y1),(x2,y2))] = [np.random.uniform(-5,0) for i in range(4)]
 
 else:
     with open(start_q_table,"rb") as f:
@@ -94,7 +94,7 @@ for episode in range(Episodes):
 
     if episode % show_every ==0:
         print("on epsiode {},epsilon:{}".format(episode,epsilon))
-        print("{} ep mean :{}".format(show_every,np.mean(episode_rewards[-show_every:])))
+      #  print("{} ep mean :{}".format(show_every,np.mean(episode_rewards[-show_every:])))
         show =True
     else:
         show =False
@@ -107,7 +107,7 @@ for episode in range(Episodes):
         if np.random.random() <=epsilon:
             action = np.random.randint(0,4)
         else:
-            action =np.max(q_table[obsv])
+            action =np.argmax(q_table[obsv])
 
         player.action(action)
 
@@ -145,7 +145,7 @@ for episode in range(Episodes):
             img = Image.fromarray(env, "RGB")
             img = img.resize((300,300))
 
-            cv2.imshow("Small world",ap.array(img))
+            cv2.imshow("Small world",np.array(img))
 
             if reward ==food_reward or reward == -enemy_penalty:
                 if cv2.waitKey(500) & 0xFF == ord("q"):
