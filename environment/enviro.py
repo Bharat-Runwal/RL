@@ -31,4 +31,34 @@ enemy_n =3
 d= {1:(255,175,0),
     2:(0,255,0)
     ,3:(0,0,255)}
+
+
+class Blob:
+    def __init__(self):
+        self.x = np.random.randint(0,SIZE)
+        self.y = np.random.randint(0,SIZE)
     
+    def __sub__(self,other):
+        return (self.x - other.x,self.y-other.y) 
+
+    #We are defining only diagonal movement not up and down
+    def action(self,act):
+        if act==0:
+            self.move(x=1,y=1)
+        elif act==1:
+            self.move(x=-1,y=-1)
+        elif act==2:
+            self.move(x=-1,y=1)
+        elif act==0:
+            self.move(x=1,y=-1)
+
+    def move(self,x=False,y=False):
+        if not x:
+            self.x += np.random.randint(-1,2)
+        else:
+            self.x +=x 
+        if not y:
+            self.y += np.random.randint(-1,2)
+        else:
+            self.y +=y        
+       
