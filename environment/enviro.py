@@ -143,6 +143,7 @@ for episode in range(Episodes):
 
             img = Image.fromarray(env, "RGB")
             img = img.resize((300,300))
+            
             cv2.imshow("Small world",ap.array(img))
 
 
