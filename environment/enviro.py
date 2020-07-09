@@ -50,7 +50,7 @@ class Blob:
             self.move(x=-1,y=-1)
         elif act==2:
             self.move(x=-1,y=1)
-        elif act==0:
+        elif act==3:
             self.move(x=1,y=-1)
 
     def move(self,x=False,y=False):
@@ -85,5 +85,65 @@ if start_q_table is None:
 else:
     with open(start_q_table,"rb") as f:
         q_table=pickle.load(f)
+
+episode_rewards =[]
+for episode in range(Episodes):
+    player = Blob()
+    food = Blob()
+    enemy =Blob()
+
+    if episode % show_every ==0:
+        print("on epsiode {},epsilon:{}".format(episode,epsilon))
+        print("{} ep mean :{}".format(show_every,np.mean(episode_rewards[-show_every:])))
+        show =True
+    else:
+        show =False
+
+    episode_reward= 0
+    
+    for i in range(200):
+        obsv= (player-food,player-enemy)
+
+        if np.random.random() <=epsilon:
+            action = np.random.randint(0,4)
+        else:
+            action =np.max(q_table[obsv])
+
+        player.action(action)
+
+        #enemy.move()
+        #food.move()
+
+        #if you end up meeting enemy 
+        if player.x ==enemy.x and player.y == enemy.y:
+            reward = -enemy_penalty
+        elif player.x ==food.x and player.y ==food.y:
+            reward = food_reward
+        else:
+            reward = -move_penalty
+
+        new_obs = (player-food , player-enemy)
+        max_q_fut = np.max(q_table[new_obs])
+        curr_q = q_table[obsv][action]
+
+        if reward == food_reward:
+            new_q = food_reward
+        elif reward == -enemy_penalty:
+            new_q = -enemy_penalty
+        else:
+            new_q=(1-lr)*curr_q+lr*(discount*reward+max_q_fut)
+
+        q_table[obsv][action]= new_q
         
+        if show:
+            env= np.zeros((SIZE,SIZE,3),dtype=np.uint8)
+            env[player.y][player.x] =d[player_n]
+            env[food.y][food.x] =d[food_n]
+            env[enemy.y][enemy.x] =d[enemy_n]
+
+            img = Image.fromarray(env, "RGB")
+            img = img.resize((300,300))
+            cv2.imshow("Small world",ap.array(img))
+
+
 
