@@ -135,6 +135,7 @@ for episode in range(Episodes):
 
         q_table[obsv][action]= new_q
         
+        # ENV SHOW 
         if show:
             env= np.zeros((SIZE,SIZE,3),dtype=np.uint8)
             env[player.y][player.x] =d[player_n]
@@ -143,8 +144,33 @@ for episode in range(Episodes):
 
             img = Image.fromarray(env, "RGB")
             img = img.resize((300,300))
-            
+
             cv2.imshow("Small world",ap.array(img))
 
+            if reward ==food_reward or reward == -enemy_penalty:
+                if cv2.waitKey(500) & 0xFF == ord("q"):
+                    break
+                else:
+                    if cv2.waitKey(1) & 0xFF ==ord("q"):
+                        break
+
+            episode_reward += reward
+            if reward ==food_reward or reward == -enemy_penalty:
+                break
+
+    episode_rewards.append(episode_reward)
+    epsilon *=eps_decay
+
+moving_avg = np.convolve(episode_rewards,np.ones((show_every,))/ show_every,mode='valid')
+
+plt.plot([i for i in range(len(moving_avg))],moving_avg)
+plt.ylabel("reward{}m_avg".format(show_every))
+plt.xlabel("episode #")
+plt.show()
+
+with open(f"qtable-{int(time.time())}.pickle","wb") as f:
+    pickle.dump(q_table,f)
+
+    
 
 
