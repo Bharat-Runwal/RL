@@ -42,6 +42,7 @@ class Blob:
         return (self.x - other.x,self.y-other.y) 
 
     #We are defining only diagonal movement not up and down
+    #i.e action space is discrete and # is 4 
     def action(self,act):
         if act==0:
             self.move(x=1,y=1)
@@ -60,5 +61,29 @@ class Blob:
         if not y:
             self.y += np.random.randint(-1,2)
         else:
-            self.y +=y        
+            self.y +=y
+
+        #NON- ACCESSIBLE MOVES
+        if self.x<0:
+            self.x = 0
+        elif self.x >SIZE-1:
+            self.x =SIZE-1
+
+        if self.y<0:
+            self.y = 0
+        elif self.y >SIZE-1:
+            self.y =SIZE-1        
        
+if start_q_table is None:
+    q_table={}
+    for x1 in range(-SIZE+1,SIZE):
+        for y1 in range(-SIZE+1,SIZE):
+            for x2 in range(-SIZE+1,SIZE):
+                for y2 in range(-SIZE+1,SIZE):
+                    q_table[((x1,y1),(x2,y2))] = [np.random.unifrom(-5,0) for i in range(4)]
+
+else:
+    with open(start_q_table,"rb") as f:
+        q_table=pickle.load(f)
+        
+
