@@ -2,6 +2,20 @@ from keras.models import Sqeuential
 from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten
 from keras.callbacks import TensorBoard
 from keras.optimizers import Adam
+from collections import deque
+import time 
+
+
+REPLAY_MEMORY_SIZE =50_000
+MODEL_NAME = "256x2"
+
+
+
+
+
+
+
+
 
 class DQNAgent:
 
@@ -12,6 +26,12 @@ class DQNAgent:
         # Target Model
         self.target_model = self.create_model()
         self.target_model.set_weights(self.model.get_weights())
+
+        self.replay_memory=deque(maxlen=REPLAY_MEMORY_SIZE)
+        
+        self.tensorboard = ModifiedTensorBoard(log_dir=f"logs/{MODEL_NAME}-{int(time.time())}")
+
+        self.target_update_counter = 0 
 
 
     def create_model(self):
