@@ -2,7 +2,7 @@ from ModifiedTensorBoard import ModifiedTensorBoard
 from BlobEnv import BlobEnv
 import tensorflow as tf
 from tqdm import tqdm
-from keras.models import Sqeuential
+from keras.models import Sequential
 from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten
 from keras.callbacks import TensorBoard
 from keras.optimizers import Adam
@@ -46,7 +46,7 @@ ep_rewards = [-200]
 # For more repetitive results
 random.seed(1)
 np.random.seed(1)
-tf.set_random_seed(1)
+tf.random.set_seed(1)
 
 # Memory fraction, used mostly when trai8ning multiple agents
 #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=MEMORY_FRACTION)
@@ -76,7 +76,7 @@ class DQNAgent:
 
 
     def create_model(self):
-        model = Sqeuential()
+        model = Sequential()
         model.add(Conv2D(256,(3,3),input_shape=env.OBSERVATION_SPACE_VALUES,activation='relu'))
         model.add(MaxPooling2D(2,2))
         model.add(Dropout(0.2))
