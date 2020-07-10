@@ -12,6 +12,10 @@ import random
 REPLAY_MEMORY_SIZE =50_000
 MODEL_NAME = "256x2"
 MIN_REPLAY_MEMORY_SIZE =10_000
+MINIBATCH_SIZE = 64
+DISCOUNT = 0.99
+
+
 replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
 
 class DQNAgent:
@@ -58,4 +62,29 @@ class DQNAgent:
         return self.model.predict(np.array(state).reshape(-1,*state.shape)/255)[0]
 
     
+    def train(self, terminal_state,step):
+        if len(self.replay_memory) < MIN_REPLAY_MEMORY_SIZE:
+            return 
+        
+        minibatch = random.sample(replay_memory,MINIBATCH_SIZE)
+
+        current_states = np.array([transition[0] for transition in minibatch])/255
+        current_qs_list = self.model.predict(current_states)
+
+        new_current_states = np.array([transition[3] for transition in minibatch])/255
+        future_qs_list = self.target_model.predict(new_current_states)
+
+        X=[]
+        y=[]
+
+        for index ,(current_state,action,reward,new_current_state,done) in enumerate(minibatch):
+            if not done:
+                max_future_q= np.max(future_qs_list[index])
+                new_q = reward + DISCOUNT * max_future_q
+            else:
+                new_q=reward 
+
+            
+
+
         
