@@ -1,4 +1,4 @@
-from DQN.Blob import Blob
+from Blob import Blob
 import numpy as np
 import cv2
 from PIL import Image
