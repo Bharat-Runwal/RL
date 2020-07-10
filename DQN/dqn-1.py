@@ -1,4 +1,6 @@
+from DQN.BlobEnv import BlobEnv
 from DQN.ModifiedTensorBoard import ModifiedTensorBoard
+import tensorflow as tf
 from keras.models import Sqeuential
 from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten
 from keras.callbacks import TensorBoard
@@ -7,16 +9,53 @@ from collections import deque
 import numpy as np 
 import time 
 import random
+import os 
 
 
-REPLAY_MEMORY_SIZE =50_000
-MODEL_NAME = "256x2"
-MIN_REPLAY_MEMORY_SIZE =10_000
-MINIBATCH_SIZE = 64
 DISCOUNT = 0.99
+REPLAY_MEMORY_SIZE = 50_000  # How many last steps to keep for model training
+MIN_REPLAY_MEMORY_SIZE = 1_000  # Minimum number of steps in a memory to start training
+MINIBATCH_SIZE = 64  # How many steps (samples) to use for training
+update_target = 5  # Terminal states (end of episodes)
+MODEL_NAME = '2x256'
+MIN_REWARD = -200  # For model save
+MEMORY_FRACTION = 0.20
+
+# Environment settings
+EPISODES = 20_000
+
+# Exploration settings
+epsilon = 1  # not a constant, going to be decayed
+EPSILON_DECAY = 0.99975
+MIN_EPSILON = 0.001
+
+#  Stats settings
+AGGREGATE_STATS_EVERY = 50  # episodes
+SHOW_PREVIEW = False
 
 
 replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
+
+
+env = BlobEnv()
+
+# For stats
+ep_rewards = [-200]
+
+# For more repetitive results
+random.seed(1)
+np.random.seed(1)
+tf.set_random_seed(1)
+
+# Memory fraction, used mostly when trai8ning multiple agents
+#gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=MEMORY_FRACTION)
+#backend.set_session(tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)))
+
+# Create models folder
+if not os.path.isdir('models'):
+    os.makedirs('models')
+
+
 
 class DQNAgent:
 
@@ -84,7 +123,18 @@ class DQNAgent:
             else:
                 new_q=reward 
 
-            
+            current_qs = current_qs_list[index]
+            current_qs[action] =new_q
 
+            X.append(current_state)
+            y.append(current_qs)
+        
 
+        self.model.fit(np.array(X),np.array(y),batch_size=MINIBATCH_SIZE,verbose=0,shuffle=False,callbacks=[self.tensorboard] if terminal_state else None )
+
+        if terminal_state :
+            self.target_update_counter +=1
+        
+        if self.target_update_counter > update_target :
+            self.target_model.set_weights(self.model.get_weights())
         
