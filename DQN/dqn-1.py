@@ -1,21 +1,18 @@
+from DQN.ModifiedTensorBoard import ModifiedTensorBoard
 from keras.models import Sqeuential
 from keras.layers import Dense,Dropout,Conv2D,MaxPooling2D,Flatten
 from keras.callbacks import TensorBoard
 from keras.optimizers import Adam
 from collections import deque
+import numpy as np 
 import time 
+import random
 
 
 REPLAY_MEMORY_SIZE =50_000
 MODEL_NAME = "256x2"
-
-
-
-
-
-
-
-
+MIN_REPLAY_MEMORY_SIZE =10_000
+replay_memory = deque(maxlen=REPLAY_MEMORY_SIZE)
 
 class DQNAgent:
 
@@ -51,4 +48,14 @@ class DQNAgent:
 
         model.compile(loss="mse",optimizer = Adam(lr=0.001),metrics=['accuracy'])
         return model
+
+    # Adds step's data to a memory replay array
+    # (observation space, action, reward, new observation space, done)
+    def update_replay_memory(self,transition):
+        replay_memory.append(transition)
+
+    def get_qs(self,state):
+        return self.model.predict(np.array(state).reshape(-1,*state.shape)/255)[0]
+
+    
         
