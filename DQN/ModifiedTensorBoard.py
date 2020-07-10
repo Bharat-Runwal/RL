@@ -2,6 +2,7 @@
 import tensorflow as tf
 from keras.callbacks import TensorBoard
 import numpy as np
+
 class ModifiedTensorBoard(TensorBoard):
 
     # Overriding init to set initial step and writer (we want one log file for all .fit() calls)
